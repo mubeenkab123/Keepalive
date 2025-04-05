@@ -1,4 +1,4 @@
-name: Keep Streamlit Alive
+name: Keep cookdoor Alive
 
 on:
   schedule:

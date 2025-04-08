@@ -1,36 +1,36 @@
-name: Keep Streamlit Alive
+# .github/workflows/keep_streamlit_awake.yml
+name: Keep Streamlit App Awake
 
 on:
   schedule:
-    - cron: '*/10 * * * *'  # Every 10 minutes
+    - cron: "*/10 * * * *"  # every 10 mins
+  workflow_dispatch:
 
 jobs:
-  keep_alive:
+  ping-app:
     runs-on: ubuntu-latest
+
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: 18
 
-      - name: Install Puppeteer
-        run: npm install puppeteer
-
-      - name: Run Puppeteer Script
+      - name: Install Playwright
         run: |
-          echo "const puppeteer = require('puppeteer');
+          npm install -D playwright
+          npx playwright install
 
-          (async () => {
-            const browser = await puppeteer.launch({
-              headless: true,
-              args: ['--no-sandbox', '--disable-setuid-sandbox']
-            });
+      - name: Ping Streamlit App with Playwright
+        run: |
+          echo "const { chromium } = require('playwright'); (async () => {
+            const browser = await chromium.launch();
             const page = await browser.newPage();
-            await page.goto('https://your-streamlit-app-url.streamlit.app', {
-              waitUntil: 'networkidle2'
-            });
-            await page.waitForTimeout(15000); // 15 seconds
+            await page.goto('https://yourhotelname.streamlit.app/', { waitUntil: 'load' });
+            await page.waitForTimeout(5000); // Wait to simulate usage
             await browser.close();
-          })();" > script.js
-
-          node script.js
+          })();" > ping.js
+          node ping.js
